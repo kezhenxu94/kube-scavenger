@@ -17,6 +17,9 @@ rules:
   - apiGroups: [ "" ]
     resources: [ "pods", "deployments", "services", "namespaces" ]
     verbs: [ "get", "list", "delete" ]
+  - apiGroups: [ "apps" ]
+    resources: [ "pods", "deployments", "services", "namespaces" ]
+    verbs: [ "get", "list", "delete" ]
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -55,5 +58,6 @@ spec:
       containers:
         - name: kube-scavenger
           image: kezhenxu94/kube-scavenger
+          imagePullPolicy: Always
           ports:
             - containerPort: 8080

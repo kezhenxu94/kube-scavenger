@@ -151,15 +151,15 @@ func prune(cli *kubernetes.Clientset, selectors map[string][]string) {
 						}
 					}
 					deleteServices(cli, ns, selector, deletedServices)
-					deleteDeployments(cli, ns, selector, deletedServices)
-					deletePods(cli, ns, selector, deletedServices)
+					deleteDeployments(cli, ns, selector, deletedDeployments)
+					deletePods(cli, ns, selector, deletedPods)
 				}
 				return false, nil
 			})
 		}
 	}
 
-	log.Printf("Removed %d container(s), %d network(s), %d volume(s) %d image(s)", len(deletedPods), len(deletedDeployments), len(deletedServices), len(deletedNamespaces))
+	log.Printf("Removed %d pod(s), %d deployment(s), %d service(s) %d namespace(s)", len(deletedPods), len(deletedDeployments), len(deletedServices), len(deletedNamespaces))
 }
 
 func deleteNamespace(cli *kubernetes.Clientset, ns corev1.Namespace, _ string, deletedNamespaces map[string]bool) {
