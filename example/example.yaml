@@ -1,0 +1,59 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app: kube-scavenger
+  name: kube-scavenger
+
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: kube-scavenger
+  labels:
+    app: kube-scavenger
+rules:
+  - apiGroups: [ "" ]
+    resources: [ "pods", "deployments", "services", "namespaces" ]
+    verbs: [ "get", "list", "delete" ]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kube-scavenger
+  labels:
+    app: kube-scavenger
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kube-scavenger
+subjects:
+  - kind: ServiceAccount
+    name: kube-scavenger
+    namespace: kube-scavenger
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-scavenger
+  labels:
+    app: kube-scavenger
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-scavenger
+  template:
+    metadata:
+      labels:
+        app: kube-scavenger
+    spec:
+      serviceAccountName: kube-scavenger
+      containers:
+        - name: kube-scavenger
+          image: kezhenxu94/kube-scavenger
+          ports:
+            - containerPort: 8080

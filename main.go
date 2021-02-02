@@ -138,14 +138,18 @@ func prune(cli *kubernetes.Clientset, selectors map[string][]string) {
 				ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 				defer cancel()
 
-				namespaces, err := cli.CoreV1().Namespaces().List(ctx, metav1.ListOptions{LabelSelector: selector})
+				namespaces, err := cli.CoreV1().Namespaces().List(ctx, metav1.ListOptions{})
 				if err != nil {
 					log.Printf("Listing namespaces has failed, retrying(%d/%d). The error was: %v", attempt, 10, err)
 					time.Sleep(1 * time.Second)
 					return attempt < 10, err
 				}
 				for _, ns := range namespaces.Items {
-					deleteNamespace(cli, ns, selector, deletedNamespaces)
+					for k, v := range ns.GetLabels() {
+						if k == key && v == val {
+							deleteNamespace(cli, ns, selector, deletedNamespaces)
+						}
+					}
 					deleteServices(cli, ns, selector, deletedServices)
 					deleteDeployments(cli, ns, selector, deletedServices)
 					deletePods(cli, ns, selector, deletedServices)
