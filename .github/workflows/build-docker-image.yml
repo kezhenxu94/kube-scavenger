@@ -27,7 +27,7 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            kezhenxu94/kube-scavenger:${{ github.event.release.tag_name || 'devel' }}
+            kezhenxu94/kube-scavenger:devel
 
       - name: Tag and Push Latest Image
         uses: docker/build-push-action@v2
