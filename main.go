@@ -42,7 +42,9 @@ func main() {
 
 	log.Println("Connect to API server successfully!")
 
-	selectors := make(map[string][]string)
+	selectors := map[string][]string{
+		"app": {"kube-scavenger"},
+	}
 
 	firstConnected := make(chan bool, 1)
 	var wg sync.WaitGroup
@@ -51,7 +53,6 @@ func main() {
 
 	select {
 	case <-time.After(1 * time.Minute):
-		panic("Timed out waiting for the first connection")
 	case <-firstConnected:
 	}
 	log.Println("Received the first connection")
@@ -199,11 +200,11 @@ func deleteDeployments(cli *kubernetes.Clientset, ns corev1.Namespace, selector 
 		log.Println(err)
 		return
 	}
-	for _, svc := range deployments.Items {
-		if err := cli.CoreV1().Services(ns.Name).Delete(ctx, svc.Name, metav1.DeleteOptions{}); err != nil {
+	for _, deployment := range deployments.Items {
+		if err := cli.AppsV1().Deployments(ns.Name).Delete(ctx, deployment.Name, metav1.DeleteOptions{}); err != nil {
 			log.Println(err)
 		} else {
-			deletedDeployments[svc.Name] = true
+			deletedDeployments[deployment.Name] = true
 		}
 	}
 }
